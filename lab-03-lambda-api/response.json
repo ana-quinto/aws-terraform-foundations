@@ -1,0 +1,1 @@
+{"statusCode": 200, "body": "[{\"id\": \"2\", \"cliente\": \"Jo\\u00e3o\", \"produto\": \"Mouse\", \"status\": \"ENVIADO\"}, {\"id\": \"1\", \"cliente\": \"Ana\", \"produto\": \"Notebook\", \"status\": \"PROCESSANDO\"}]"}

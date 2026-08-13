@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopCloud — A loja da nuvem</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f0f0f8; color: #0f1111; font-size: 14px; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: linear-gradient(90deg, #1e0a3c 0%, #1a237e 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      flex-wrap: wrap;
+    }
+    .topbar .logo { font-size: 1.5rem; font-weight: 900; color: #a78bfa; margin-right: 8px; white-space: nowrap; }
+    .topbar .logo span { color: #fff; font-size: .75rem; font-weight: 400; display: block; line-height: 1; }
+    .deliver-to { font-size: 12px; color: #ccc; display: flex; flex-direction: column; margin-right: 4px; }
+    .deliver-to b { color: #fff; font-size: 13px; }
+    .search-bar { flex: 1; display: flex; min-width: 200px; }
+    .search-cat {
+      background: #e3e6e6; color: #0f1111; border: none; padding: 0 8px;
+      border-radius: 4px 0 0 4px; font-size: 12px; cursor: pointer;
+    }
+    .search-bar input {
+      flex: 1; border: none; padding: 8px 10px; font-size: 14px; outline: none;
+    }
+    .search-bar button {
+      background: #7c3aed; border: none; padding: 0 14px; border-radius: 0 4px 4px 0; cursor: pointer; font-size: 18px;
+    }
+    .topbar-right { display: flex; gap: 16px; align-items: center; margin-left: auto; }
+    .topbar-right .tlink { color: #fff; font-size: 13px; white-space: nowrap; }
+    .topbar-right .tlink small { display: block; font-size: 11px; color: #ccc; }
+    .topbar-right .tlink b { font-size: 14px; }
+    .cart-icon { font-size: 22px; position: relative; }
+    .cart-badge {
+      position: absolute; top: -4px; right: -6px;
+      background: #7c3aed; color: #fff; border-radius: 50%;
+      font-size: 11px; font-weight: 700; width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── NAV BAR ── */
+    .navbar {
+      background: linear-gradient(90deg, #2e1065 0%, #1e3a8a 100%); color: #fff;
+      display: flex; align-items: center; gap: 4px;
+      padding: 6px 16px; overflow-x: auto; white-space: nowrap;
+    }
+    .navbar a {
+      color: #fff; font-size: 13px; padding: 5px 10px;
+      border-radius: 3px; border: 1px solid transparent;
+    }
+    .navbar a:hover { border-color: #fff; }
+    .navbar .nb-bold { font-weight: 700; }
+
+    /* ── HERO BANNER ── */
+    .hero {
+      background: linear-gradient(135deg, #1e0a3c 0%, #2e1065 35%, #1e3a8a 70%, #1a237e 100%);
+      color: #fff; text-align: center;
+      padding: 56px 24px 48px;
+      position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+      background: linear-gradient(to bottom, transparent, #f0f0f8);
+    }
+    .hero-badge {
+      display: inline-block;
+      background: #7c3aed; color: #fff;
+      font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 3px; margin-bottom: 18px;
+    }
+    .hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; margin-bottom: 12px; line-height: 1.2; }
+    .hero h1 span { color: #a78bfa; }
+    .hero p { font-size: 15px; color: #c8d3de; max-width: 500px; margin: 0 auto 28px; line-height: 1.6; }
+    .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-orange {
+      background: #7c3aed; color: #fff;
+      padding: 10px 24px; border-radius: 3px; font-size: 14px; font-weight: 700;
+      border: 1px solid #6d28d9; transition: background .15s;
+    }
+    .btn-orange:hover { background: #6d28d9; }
+    .btn-outline {
+      background: transparent; color: #fff;
+      padding: 10px 24px; border-radius: 3px; font-size: 14px; font-weight: 600;
+      border: 1px solid rgba(255,255,255,.4); transition: border-color .15s;
+    }
+    .btn-outline:hover { border-color: #fff; }
+
+    /* ── PROMO STRIP ── */
+    .promo-strip {
+      display: flex; gap: 12px; padding: 16px 24px;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .promo-pill {
+      background: #fff; border: 1px solid #ddd; border-radius: 3px;
+      padding: 8px 16px; font-size: 13px; display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .promo-pill .icon { font-size: 18px; }
+    .promo-pill b { color: #c7511f; }
+
+    /* ── CATEGORIES ── */
+    .section-wrap { max-width: 1300px; margin: 0 auto; padding: 0 16px 32px; }
+    .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; color: #0f1111; }
+
+    .categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 32px; }
+    .cat-card {
+      background: #fff; border: 1px solid #ddd; border-radius: 4px;
+      padding: 16px; text-align: center;
+      transition: box-shadow .2s, border-color .2s;
+      cursor: pointer;
+    }
+    .cat-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,.12); border-color: #7c3aed; }
+    .cat-card .cat-icon { font-size: 2.5rem; margin-bottom: 8px; }
+    .cat-card .cat-name { font-size: 13px; font-weight: 700; }
+    .cat-card .cat-count { font-size: 11px; color: #565959; margin-top: 2px; }
+    .cat-card .cat-link { font-size: 12px; color: #007185; margin-top: 8px; display: block; }
+    .cat-card .cat-link:hover { text-decoration: underline; color: #c7511f; }
+
+    /* ── PRODUCTS ── */
+    .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+    .prod-card {
+      background: #fff; border: 1px solid #ddd; border-radius: 4px;
+      padding: 16px; display: flex; flex-direction: column;
+      transition: box-shadow .2s;
+    }
+    .prod-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+    .prod-img { font-size: 3.8rem; text-align: center; padding: 16px 0; }
+    .prod-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; line-height: 1.4; }
+    .prod-brand { font-size: 12px; color: #565959; margin-bottom: 6px; }
+    .prod-rating { color: #7c3aed; font-size: 13px; margin-bottom: 4px; }
+    .prod-rating span { color: #007185; font-size: 12px; margin-left: 4px; }
+    .prod-prime { color: #00a8e1; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+    .prod-price-old { font-size: 12px; color: #565959; text-decoration: line-through; }
+    .prod-price { font-size: 1.3rem; font-weight: 700; color: #0f1111; }
+    .prod-price sup { font-size: .8rem; vertical-align: top; margin-top: 4px; }
+    .prod-discount { font-size: 12px; color: #cc0c39; font-weight: 700; margin-bottom: 2px; }
+    .prod-delivery { font-size: 12px; color: #007600; margin: 6px 0 12px; }
+    .prod-card .btn-orange { width: 100%; text-align: center; margin-top: auto; border-radius: 20px; padding: 8px; }
+
+    /* ── DEAL OF THE DAY ── */
+    .deal-banner {
+      background: linear-gradient(90deg, #1e0a3c, #1e3a8a);
+      color: #fff; border-radius: 4px;
+      padding: 24px 28px; margin-bottom: 32px;
+      display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+    }
+    .deal-badge { background: #cc0c39; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 2px; text-transform: uppercase; }
+    .deal-content { flex: 1; min-width: 200px; }
+    .deal-content h3 { font-size: 1.2rem; font-weight: 700; margin: 8px 0 4px; }
+    .deal-content p { font-size: 13px; color: #c8d3de; }
+    .deal-timer { display: flex; gap: 8px; align-items: center; }
+    .timer-box {
+      background: #fff; color: #0f1111;
+      width: 44px; height: 44px; border-radius: 4px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 900; line-height: 1;
+    }
+    .timer-box small { font-size: 9px; font-weight: 400; color: #565959; }
+    .timer-sep { font-size: 22px; font-weight: 900; color: #a78bfa; }
+    .deal-price { text-align: right; }
+    .deal-price .from { font-size: 12px; color: #aaa; text-decoration: line-through; }
+    .deal-price .to { font-size: 2rem; font-weight: 900; color: #a78bfa; }
+    .deal-price .save { font-size: 12px; color: #5cb85c; }
+
+    /* ── FOOTER ── */
+    .footer-top { background: #2e1065; color: #fff; padding: 24px; text-align: center; margin-top: 32px; }
+    .footer-top a { color: #fff; font-size: 13px; margin: 0 12px; }
+    .footer-top a:hover { text-decoration: underline; }
+    .footer-mid {
+      background: #1e0a3c; color: #ccc;
+      padding: 16px 24px; display: flex; gap: 32px;
+      flex-wrap: wrap; justify-content: center; font-size: 12px;
+    }
+    .footer-col h4 { color: #fff; font-size: 13px; margin-bottom: 10px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .footer-col ul li a { color: #ccc; }
+    .footer-col ul li a:hover { text-decoration: underline; color: #fff; }
+    .footer-bot {
+      background: #0d0521; color: #888; text-align: center;
+      padding: 16px; font-size: 12px;
+    }
+    .footer-bot span { color: #a78bfa; }
+
+    @media (max-width: 600px) {
+      .topbar-right .tlink:not(.cart-wrap) { display: none; }
+      .deal-timer { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ TOP BAR ══ -->
+<header class="topbar">
+  <div class="logo">ShopCloud <span>hospedado no S3</span></div>
+
+  <div class="deliver-to">
+    <small>Entregar em</small>
+    <b>São Paulo, SP</b>
+  </div>
+
+  <div class="search-bar">
+    <select class="search-cat">
+      <option>Todos</option>
+      <option>Tecnologia</option>
+      <option>Periféricos</option>
+      <option>Áudio</option>
+    </select>
+    <input type="text" placeholder="Pesquisar na ShopCloud" />
+    <button>🔍</button>
+  </div>
+
+  <div class="topbar-right">
+    <div class="tlink">
+      <small>Olá, visitante</small>
+      <b>Conta e Listas ▾</b>
+    </div>
+    <div class="tlink">
+      <small>Devoluções</small>
+      <b>&amp; Pedidos</b>
+    </div>
+    <div class="tlink cart-wrap" style="position:relative">
+      <span class="cart-icon">🛒</span>
+      <span class="cart-badge">3</span>
+    </div>
+  </div>
+</header>
+
+<!-- ══ NAV BAR ══ -->
+<nav class="navbar">
+  <a href="#" class="nb-bold">☰ Todos</a>
+  <a href="#">Ofertas do Dia</a>
+  <a href="#">Tecnologia</a>
+  <a href="#">Periféricos</a>
+  <a href="#">Áudio &amp; Vídeo</a>
+  <a href="#">Casa Inteligente</a>
+  <a href="#">Prime</a>
+  <a href="#">Novidades</a>
+</nav>
+
+<!-- ══ HERO BANNER ══ -->
+<section class="hero">
+  <div class="hero-badge">☁️ Infraestrutura AWS · Terraform Lab 02</div>
+  <h1>Bem-vindo à <span>ShopCloud</span></h1>
+  <p>A startup que nasceu na nuvem. Infraestrutura provisionada com Terraform, hospedada no S3, sem servidor para gerenciar.</p>
+  <div class="hero-btns">
+    <a href="#produtos" class="btn-orange">Ver ofertas</a>
+    <a href="#" class="btn-outline">Assine o Prime ▸</a>
+  </div>
+</section>
+
+<!-- ══ PROMO STRIP ══ -->
+<div class="promo-strip">
+  <div class="promo-pill"><span class="icon">🚚</span> <span>Frete <b>GRÁTIS</b> acima de R$ 299</span></div>
+  <div class="promo-pill"><span class="icon">🔒</span> <span>Compra <b>100% segura</b></span></div>
+  <div class="promo-pill"><span class="icon">↩️</span> <span>Devolução em <b>30 dias</b></span></div>
+  <div class="promo-pill"><span class="icon">⭐</span> <span>+12.000 avaliações <b>5 estrelas</b></span></div>
+</div>
+
+<!-- ══ DEAL OF THE DAY ══ -->
+<div class="section-wrap">
+  <div class="deal-banner">
+    <div>
+      <div class="deal-badge">⚡ Oferta relâmpago</div>
+      <div class="deal-content">
+        <h3>Notebook Dell XPS 15 — só hoje</h3>
+        <p>Intel Core i7 · 16GB RAM · SSD 512GB · Pronta entrega em SP</p>
+      </div>
+    </div>
+    <div class="deal-timer">
+      <div class="timer-box">04 <small>h</small></div>
+      <div class="timer-sep">:</div>
+      <div class="timer-box">37 <small>m</small></div>
+      <div class="timer-sep">:</div>
+      <div class="timer-box">12 <small>s</small></div>
+    </div>
+    <div class="deal-price">
+      <div class="from">R$ 6.899</div>
+      <div class="to">R$ 5.499</div>
+      <div class="save">Você economiza R$ 1.400</div>
+      <a href="#produtos" class="btn-orange" style="display:inline-block;margin-top:10px;padding:8px 20px;border-radius:20px">Ver oferta</a>
+    </div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <h2 class="section-title">Compre por categoria</h2>
+  <div class="categories">
+    <div class="cat-card">
+      <div class="cat-icon">💻</div>
+      <div class="cat-name">Notebooks</div>
+      <div class="cat-count">142 produtos</div>
+      <a class="cat-link" href="#">Ver todos ›</a>
+    </div>
+    <div class="cat-card">
+      <div class="cat-icon">📱</div>
+      <div class="cat-name">Smartphones</div>
+      <div class="cat-count">98 produtos</div>
+      <a class="cat-link" href="#">Ver todos ›</a>
+    </div>
+    <div class="cat-card">
+      <div class="cat-icon">🖥️</div>
+      <div class="cat-name">Monitores</div>
+      <div class="cat-count">56 produtos</div>
+      <a class="cat-link" href="#">Ver todos ›</a>
+    </div>
+    <div class="cat-card">
+      <div class="cat-icon">🎧</div>
+      <div class="cat-name">Áudio</div>
+      <div class="cat-count">203 produtos</div>
+      <a class="cat-link" href="#">Ver todos ›</a>
+    </div>
+    <div class="cat-card">
+      <div class="cat-icon">⌨️</div>
+      <div class="cat-name">Periféricos</div>
+      <div class="cat-count">317 produtos</div>
+      <a class="cat-link" href="#">Ver todos ›</a>
+    </div>
+    <div class="cat-card">
+      <div class="cat-icon">🏠</div>
+      <div class="cat-name">Casa Inteligente</div>
+      <div class="cat-count">89 produtos</div>
+      <a class="cat-link" href="#">Ver todos ›</a>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <h2 class="section-title" id="produtos">Os mais vendidos</h2>
+  <div class="products">
+
+    <div class="prod-card">
+      <div class="prod-img">💻</div>
+      <div class="prod-brand">Dell</div>
+      <div class="prod-name">Notebook Dell Inspiron 15 Intel Core i5 8GB 256GB SSD</div>
+      <div class="prod-rating">★★★★★ <span>2.341</span></div>
+      <div class="prod-prime">✓ Prime</div>
+      <div class="prod-price-old">R$ 3.299,00</div>
+      <div class="prod-discount">↓ 15% OFF</div>
+      <div class="prod-price"><sup>R$</sup>2.799<sup>,00</sup></div>
+      <div class="prod-delivery">✓ Receba amanhã</div>
+      <a href="#" class="btn-orange add-to-cart">Adicionar ao carrinho</a>
+    </div>
+
+    <div class="prod-card">
+      <div class="prod-img">📱</div>
+      <div class="prod-brand">Samsung</div>
+      <div class="prod-name">Samsung Galaxy S24 128GB 5G Preto</div>
+      <div class="prod-rating">★★★★★ <span>5.102</span></div>
+      <div class="prod-prime">✓ Prime</div>
+      <div class="prod-price-old">R$ 4.199,00</div>
+      <div class="prod-discount">↓ 12% OFF</div>
+      <div class="prod-price"><sup>R$</sup>3.699<sup>,00</sup></div>
+      <div class="prod-delivery">✓ Receba amanhã</div>
+      <a href="#" class="btn-orange add-to-cart">Adicionar ao carrinho</a>
+    </div>
+
+    <div class="prod-card">
+      <div class="prod-img">🖥️</div>
+      <div class="prod-brand">LG</div>
+      <div class="prod-name">Monitor LG 24" Full HD IPS 75Hz HDMI</div>
+      <div class="prod-rating">★★★★☆ <span>893</span></div>
+      <div class="prod-prime">✓ Prime</div>
+      <div class="prod-price-old">R$ 899,00</div>
+      <div class="prod-discount">↓ 18% OFF</div>
+      <div class="prod-price"><sup>R$</sup>739<sup>,00</sup></div>
+      <div class="prod-delivery">✓ Receba em 2 dias</div>
+      <a href="#" class="btn-orange add-to-cart">Adicionar ao carrinho</a>
+    </div>
+
+    <div class="prod-card">
+      <div class="prod-img">⌨️</div>
+      <div class="prod-brand">Logitech</div>
+      <div class="prod-name">Teclado Mecânico Logitech K835 TKL Switch Red</div>
+      <div class="prod-rating">★★★★★ <span>1.207</span></div>
+      <div class="prod-prime">✓ Prime</div>
+      <div class="prod-price-old">R$ 499,00</div>
+      <div class="prod-discount">↓ 20% OFF</div>
+      <div class="prod-price"><sup>R$</sup>399<sup>,00</sup></div>
+      <div class="prod-delivery">✓ Receba amanhã</div>
+      <a href="#" class="btn-orange add-to-cart">Adicionar ao carrinho</a>
+    </div>
+
+    <div class="prod-card">
+      <div class="prod-img">🎧</div>
+      <div class="prod-brand">JBL</div>
+      <div class="prod-name">Fone JBL Tune 510BT Bluetooth 40h Preto</div>
+      <div class="prod-rating">★★★★★ <span>3.456</span></div>
+      <div class="prod-prime">✓ Prime</div>
+      <div class="prod-price-old">R$ 349,00</div>
+      <div class="prod-discount">↓ 22% OFF</div>
+      <div class="prod-price"><sup>R$</sup>269<sup>,00</sup></div>
+      <div class="prod-delivery">✓ Receba amanhã</div>
+      <a href="#" class="btn-orange add-to-cart">Adicionar ao carrinho</a>
+    </div>
+
+    <div class="prod-card">
+      <div class="prod-img">🖱️</div>
+      <div class="prod-brand">Logitech</div>
+      <div class="prod-name">Mouse Logitech MX Anywhere 3 Sem Fio Grafite</div>
+      <div class="prod-rating">★★★★★ <span>4.891</span></div>
+      <div class="prod-prime">✓ Prime</div>
+      <div class="prod-price-old">R$ 599,00</div>
+      <div class="prod-discount">↓ 17% OFF</div>
+      <div class="prod-price"><sup>R$</sup>499<sup>,00</sup></div>
+      <div class="prod-delivery">✓ Receba amanhã</div>
+      <a href="#" class="btn-orange add-to-cart">Adicionar ao carrinho</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<div class="footer-top">
+  <a href="#">Sobre a ShopCloud</a>
+  <a href="#">Carreiras</a>
+  <a href="#">Imprensa</a>
+  <a href="#">Blog AWS</a>
+  <a href="#">Sustentabilidade</a>
+</div>
+
+<div class="footer-mid">
+  <div class="footer-col">
+    <h4>Conheça a ShopCloud</h4>
+    <ul>
+      <li><a href="#">Sobre nós</a></li>
+      <li><a href="#">Carreiras</a></li>
+      <li><a href="#">Imprensa</a></li>
+      <li><a href="#">Blog</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <h4>Ganhe dinheiro conosco</h4>
+    <ul>
+      <li><a href="#">Venda na ShopCloud</a></li>
+      <li><a href="#">Programa de afiliados</a></li>
+      <li><a href="#">Anuncie</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <h4>Pagamento</h4>
+    <ul>
+      <li><a href="#">Cartão ShopCloud</a></li>
+      <li><a href="#">Pix</a></li>
+      <li><a href="#">Parcelamento</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <h4>Atendimento</h4>
+    <ul>
+      <li><a href="#">Central de ajuda</a></li>
+      <li><a href="#">Rastrear pedido</a></li>
+      <li><a href="#">Devoluções</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer-bot">
+  <strong style="color:#ff9900;font-size:15px">ShopCloud</strong><br><br>
+  Hospedado no <span>Amazon S3</span> · Provisionado com <span>Terraform</span> · Lab 02 · aws_s3_bucket_website_configuration
+</div>
+
+<script>
+  // ── TIMER REGRESSIVO ──
+  (function() {
+    var h = 4, m = 37, s = 12;
+    var boxes = document.querySelectorAll('.timer-box');
+    if (!boxes.length) return;
+    setInterval(function() {
+      s--; if (s < 0) { s = 59; m--; } if (m < 0) { m = 59; h--; } if (h < 0) { h = 23; }
+      boxes[0].childNodes[0].textContent = String(h).padStart(2,'0');
+      boxes[1].childNodes[0].textContent = String(m).padStart(2,'0');
+      boxes[2].childNodes[0].textContent = String(s).padStart(2,'0');
+    }, 1000);
+  })();
+
+  // ── CARRINHO ──
+  var cartCount = 3;
+  var cartBadge = document.querySelector('.cart-badge');
+
+  document.querySelectorAll('.add-to-cart').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Incrementa contador
+      cartCount++;
+      cartBadge.textContent = cartCount;
+      
+      // Feedback visual no botão
+      var originalText = btn.textContent;
+      btn.textContent = '✓ Adicionado!';
+      btn.style.background = '#5cb85c';
+      btn.style.borderColor = '#4cae4c';
+      
+      // Anima o badge do carrinho
+      cartBadge.style.transform = 'scale(1.3)';
+      cartBadge.style.transition = 'transform 0.2s';
+      
+      setTimeout(function() {
+        btn.textContent = originalText;
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        cartBadge.style.transform = 'scale(1)';
+      }, 1500);
+    });
+  });
+
+  // ── BUSCA ──
+  var searchInput = document.querySelector('.search-bar input');
+  var searchBtn = document.querySelector('.search-bar button');
+  
+  function performSearch() {
+    var query = searchInput.value.trim().toLowerCase();
+    if (!query) return;
+    
+    var products = document.querySelectorAll('.prod-card');
+    var found = 0;
+    
+    products.forEach(function(card) {
+      var name = card.querySelector('.prod-name').textContent.toLowerCase();
+      var brand = card.querySelector('.prod-brand').textContent.toLowerCase();
+      
+      if (name.includes(query) || brand.includes(query)) {
+        card.style.display = '';
+        card.style.animation = 'fadeIn 0.3s';
+        found++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+    
+    // Mensagem se não encontrar nada
+    var existingMsg = document.querySelector('.search-result-msg');
+    if (existingMsg) existingMsg.remove();
+    
+    if (found === 0) {
+      var msg = document.createElement('p');
+      msg.className = 'search-result-msg';
+      msg.style.cssText = 'text-align:center;color:#888;padding:40px;grid-column:1/-1;font-size:15px';
+      msg.innerHTML = '😕 Nenhum produto encontrado para "<strong>' + query + '</strong>"<br><a href="#" style="color:#7c3aed;margin-top:10px;display:inline-block" onclick="location.reload()">Limpar busca</a>';
+      document.querySelector('.products').appendChild(msg);
+    }
+  }
+  
+  searchBtn.addEventListener('click', performSearch);
+  searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') performSearch();
+  });
+
+  // CSS para animação
+  var style = document.createElement('style');
+  style.textContent = '@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }';
+  document.head.appendChild(style);
+
+  // ── NAVEGAÇÃO E FILTROS ──
+  var navLinks = document.querySelectorAll('.navbar a:not(.nb-bold)');
+  var allProducts = Array.from(document.querySelectorAll('.prod-card'));
+  
+  navLinks.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      var category = this.textContent.trim().toLowerCase();
+      
+      // Remove mensagem de busca se existir
+      var searchMsg = document.querySelector('.search-result-msg');
+      if (searchMsg) searchMsg.remove();
+      
+      // Filtro básico por categoria (baseado no texto do link)
+      var categoryMap = {
+        'ofertas do dia': 'oferta',
+        'tecnologia': ['notebook', 'monitor'],
+        'periféricos': ['teclado', 'mouse'],
+        'áudio': ['fone', 'headset', 'jbl', 'sony'],
+        'casa inteligente': [],
+        'prime': 'prime',
+        'novidades': []
+      };
+      
+      var keywords = categoryMap[category] || [];
+      if (typeof keywords === 'string') keywords = [keywords];
+      
+      if (keywords.length === 0) {
+        // Mostra todos se não tiver filtro específico
+        allProducts.forEach(function(card) { 
+          card.style.display = ''; 
+          card.style.animation = 'fadeIn 0.3s';
+        });
+      } else {
+        // Filtra por palavras-chave
+        allProducts.forEach(function(card) {
+          var name = card.querySelector('.prod-name').textContent.toLowerCase();
+          var brand = card.querySelector('.prod-brand').textContent.toLowerCase();
+          var isPrime = card.querySelector('.prod-prime');
+          
+          var match = keywords.some(function(kw) {
+            return name.includes(kw) || brand.includes(kw);
+          });
+          
+          // Filtro especial para Prime
+          if (category === 'prime' && isPrime) match = true;
+          
+          card.style.display = match ? '' : 'none';
+          if (match) card.style.animation = 'fadeIn 0.3s';
+        });
+      }
+      
+      // Scroll suave até produtos
+      document.querySelector('#produtos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // ── BOTÃO "TODOS" NO NAVBAR ──
+  document.querySelector('.navbar .nb-bold').addEventListener('click', function(e) {
+    e.preventDefault();
+    allProducts.forEach(function(card) { 
+      card.style.display = ''; 
+      card.style.animation = 'fadeIn 0.3s';
+    });
+    var searchMsg = document.querySelector('.search-result-msg');
+    if (searchMsg) searchMsg.remove();
+    searchInput.value = '';
+  });
+
+  // ── CARDS DE CATEGORIA ──
+  document.querySelectorAll('.cat-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var catName = this.querySelector('.cat-name').textContent.toLowerCase();
+      var catMap = {
+        'notebooks': 'notebook',
+        'smartphones': ['samsung', 'galaxy', 'iphone'],
+        'monitores': 'monitor',
+        'áudio': ['fone', 'jbl', 'headset'],
+        'periféricos': ['teclado', 'mouse'],
+        'casa inteligente': []
+      };
+      
+      var keywords = catMap[catName] || [];
+      if (typeof keywords === 'string') keywords = [keywords];
+      
+      allProducts.forEach(function(card) {
+        var name = card.querySelector('.prod-name').textContent.toLowerCase();
+        var brand = card.querySelector('.prod-brand').textContent.toLowerCase();
+        
+        var match = keywords.length === 0 || keywords.some(function(kw) {
+          return name.includes(kw) || brand.includes(kw);
+        });
+        
+        card.style.display = match ? '' : 'none';
+        if (match) card.style.animation = 'fadeIn 0.3s';
+      });
+      
+      document.querySelector('#produtos').scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // ── BOTÃO "ASSINE O PRIME" ──
+  document.querySelector('.btn-outline').addEventListener('click', function(e) {
+    e.preventDefault();
+    alert('🎉 Bem-vindo ao ShopCloud Prime!\n\n✓ Frete grátis ilimitado\n✓ Ofertas exclusivas\n✓ Acesso antecipado às promoções\n\n(Este é um site demo — hospedado no S3 com Terraform)');
+  });
+
+  // ── LINKS DO TOPBAR ──
+  var topbarLinks = document.querySelectorAll('.topbar-right .tlink');
+  topbarLinks[0].addEventListener('click', function(e) {
+    e.preventDefault();
+    var nome = prompt('Digite seu nome:', 'João Silva');
+    if (nome) {
+      this.querySelector('small').textContent = 'Olá, ' + nome.split(' ')[0];
+    }
+  });
+  
+  topbarLinks[1].addEventListener('click', function(e) {
+    e.preventDefault();
+    alert('📦 Seus pedidos:\n\n• Nenhum pedido encontrado\n\n(Adicione produtos ao carrinho para simular)');
+  });
+
+  // ── CARRINHO (clique no ícone) ──
+  document.querySelector('.cart-wrap').addEventListener('click', function(e) {
+    e.preventDefault();
+    if (cartCount === 0) {
+      alert('🛒 Seu carrinho está vazio\n\nAdicione produtos para continuar!');
+    } else {
+      alert('🛒 Carrinho (' + cartCount + ' itens)\n\n💡 Este é um site demo.\nEm produção, aqui abriria a página do carrinho.');
+    }
+  });
+</script>
+</body>
+</html>
